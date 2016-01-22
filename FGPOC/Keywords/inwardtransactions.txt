@@ -1,0 +1,353 @@
+*** Settings ***
+Resource          super.txt
+
+*** Keywords ***
+Select Inward Transaction Type
+    [Arguments]    ${actionType}    ${branchNo}    ${deptName}
+    ${kwStatus}    Set Variable    False
+    ${bAStatus}    Wait For Text    Action
+    ${bBStatus}    Wait For Text    Branch    2
+    ${bDStatus}    Wait For Text    Department    2
+    ${bStatus}    Evaluate    ${bAStatus} and ${bBStatus} and ${bDStatus}
+    Run Keyword If    ${bStatus}==False    Return From Keyword    ${bStatus}
+    Enter Text By Field Name    Action    ${actionType}
+    Enter Text By Field Name    Branch    ${branchNo}
+    Enter Text By Field Name    Department    ${deptName}
+    Capture Screenshot
+    Press Key    [enter]
+    ${kwStatus}    Wait For Text    Inward Transaction Details Create
+    [Return]    ${kwStatus}
+
+Create New Inward Transaction
+    [Arguments]    ${Inwarddetails}
+    ${KWStatus}    Set Variable    False
+    ${InwardScreenStatus}    Wait For Text    Inward Transaction Details Create    ${TimeOut}
+    Run Keyword If    ${InwardScreenStatus}==False    Return From Keyword    False
+    ${Recordvalue}    Get From Dictionary    ${Inwarddetails}    RecordNumber
+    ${CntTypeValue}    Get From Dictionary    ${Inwarddetails}    CntTyp
+    ${CleintNameValue}    Get From Dictionary    ${Inwarddetails}    Client Name
+    ${AgentCodeValue}    Get From Dictionary    ${Inwarddetails}    Agent Code
+    ${PremiumValue}    Get From Dictionary    ${Inwarddetails}    Premium
+    ${ColAccValue}    Get From Dictionary    ${Inwarddetails}    ColA/C
+    ${PayMthValue}    Get From Dictionary    ${Inwarddetails}    PayMth
+    ${InsNum}=    Get From Dictionary    ${Inwarddetails}    InsNo
+    ${InsAmoutDate}=    Get From Dictionary    ${Inwarddetails}    InstAmt/Dt
+    ${MISAgntvalue}    Get From Dictionary    ${Inwarddetails}    MIS Agnt
+    ${DISCValue}    Get From Dictionary    ${Inwarddetails}    DISC %
+    ${RateValue}    Get From Dictionary    ${Inwarddetails}    Rate
+    ${RefValue}    Get From Dictionary    ${Inwarddetails}    Ref
+    ${BankBranchValue}    Get From Dictionary    ${Inwarddetails}    Bank Branch
+    ${INSFrmValue}    Get From Dictionary    ${Inwarddetails}    InsFrm
+    ${TrmStatusValue}    Get From Dictionary    ${Inwarddetails}    Trn.Status
+    ${MakeValue}    Get From Dictionary    ${Inwarddetails}    Make/Mdl
+    ${CoverNTValue}    Get From Dictionary    ${Inwarddetails}    CoverNote/Dt
+    ${CatergoryValue}    Get From Dictionary    ${Inwarddetails}    Category
+    ${ReasonValue}    Get From Dictionary    ${Inwarddetails}    Reason
+    ${PayValue}    Get From Dictionary    ${Inwarddetails}    Pay No
+    ${LeadPolValue}    Get From Dictionary    ${Inwarddetails}    LeadPolNo
+    ${IntiatorValue}    Get From Dictionary    ${Inwarddetails}    Initiator
+    ${DiscCatvalue}    Get From Dictionary    ${Inwarddetails}    Disc Cat
+    ${DiscResValue}    Get From Dictionary    ${Inwarddetails}    Disc Resolutn Dt
+    ${DiscValue}    Get From Dictionary    ${Inwarddetails}    Disc/Rfnd Letter Typ
+    ${DiscReasonValue}    Get From Dictionary    ${Inwarddetails}    Disc Reason
+    ${RemarksValue}    Get From Dictionary    ${Inwarddetails}    Remarks
+    ${IDVvalue}    Get From Dictionary    ${Inwarddetails}    IDV
+    Capture Screenshot
+    ${ActualUserID}    Get Value By Field Name    User Id:    1
+    Run Keyword If    '${ActualUserID.strip()}'!='${GlobalUserName}'    Set Test Message    Expected User ID: ${GlobalUserName} is equal to Logged In UserID: ${ActualUserID} \n    append=True
+    Run Keyword If    '${ActualUserID.strip()}'!='${GlobalUserName}'    Return From Keyword If
+    Enter Text By Field Name    CntTyp    ${CntTypeValue}
+    Enter Text By Field Name    Client Name    ${CleintNameValue}
+    Enter Text By Field Name    Agent Code    ${AgentCodeValue}
+    Enter Text By Field Name    Premium    ${PremiumValue}
+    Select Item From Search Table By Field Name    ColA/C    ${ColAccValue}
+    ${PayMethodList}    Split String    ${PayMthValue}    ,
+    ${InsNumberList}    Split String    ${InsNum}    ,
+    ${InsAmountDateList}    Split String    ${InsAmoutDate}    ,
+    ${iSize}    Get Length    ${PayMethodList}
+    : FOR    ${ivalue}    IN RANGE    0    ${iSize}
+    \    ${fieldInstance}    Evaluate    ${ivalue}+1
+    \    Select Item From Search Table By Field Name    PayMth    @{PayMethodList}[${ivalue}]    ${fieldInstance}
+    \    Press Key    [ENTER]
+    \    Sleep    2
+    \    Enter Text By Field Name    InsNo    @{InsNumberList}[${ivalue}]    ${fieldInstance}
+    \    Enter Text For Multiple Fileds    InstAmt/Dt    @{InsAmountDateList}[${ivalue}]    ${fieldInstance}
+    Enter Text By Field Name    MIS Agnt    ${MISAgntvalue}
+    Enter Text By Field Name    DISC %    ${DISCValue}
+    Enter Text By Field Name    Rate    ${RateValue}
+    Enter Text By Field Name    Ref    ${RefValue}
+    Enter Text By Field Name    Bank Branch    ${BankBranchValue}
+    Enter Text By Field Name    InsFrm    ${INSFrmValue}
+    Capture Screenshot
+    Run Keyword If    '${TrmStatusValue}'!=''    Select Item From Search Table By Field Name    Trn.Status    ${TrmStatusValue}
+    Enter Text By Field Name    Make/Mdl    ${MakeValue}
+    Enter Text By Field Name    CoverNote/Dt    ${CoverNTValue}
+    Enter Text By Field Name    Category    ${CatergoryValue}
+    Enter Text By Field Name    Reason    ${ReasonValue}
+    Enter Text By Field Name    Pay No    ${PayValue}
+    Enter Text By Field Name    LeadPolNo    ${LeadPolValue}
+    Enter Text By Field Name    Initiator    ${IntiatorValue}
+    Enter Text By Field Name    Disc Cat    ${DiscCatvalue}
+    Enter Text By Field Name    Disc Resolutn Dt    ${DiscResValue}
+    Enter Text By Field Name    Disc/Rfnd Letter Typ    ${DiscValue}
+    Enter Text By Field Name    Disc Reason    ${DiscReasonValue}
+    Enter Text By Field Name    Remarks    ${RemarksValue}
+    Enter Text By Field Name    IDV    ${IDVvalue}
+    Capture Screenshot
+    Press Key    [ENTER]
+    ${bAStatus}    Wait For Text    Action
+    ${bBStatus}    Wait For Text    Branch    2
+    ${bDStatus}    Wait For Text    Department    2
+    ${bStatus}    Evaluate    ${bAStatus} and ${bBStatus} and ${bDStatus}
+    ${KWStatus}    Set Variable    ${bStatus}
+    [Return]    ${KWStatus}
+
+Validate Creation Of Inward Trnsaction and Policy Creation
+    ${InwardTestData}    Read Multiple Testdata    ${testDataFilePath}    InwardTransactionData    Y
+    ${iSize}    Get Length    ${InwardTestData}
+    : FOR    ${rowIndex}    IN RANGE    1    ${iSize}+1
+    \    ${rowIndex}    Convert To String    ${rowIndex}
+    \    ${messageDetails}    Get Messages
+    \    ${NoOfError}    Get Length    ${messageDetails}
+    \    ${EmulatorStatus}    Run Keyword If    ${NoOfError}>0    Run Keyword And Return Status    Should Contain    @{messageDetails}[0]
+    \    ...    IBM\\Client Access\\Emulator\\autclist.tlb\x00
+    \    ${EmulatorStatus}    Set Variable If    ${NoOfError}>0    ${EmulatorStatus}    False
+    \    Run Keyword If    ${EmulatorStatus}==True    Close AS400 Console
+    \    Run Keyword If    ${EmulatorStatus}==True    Open AS400 Console    ${GlobalConnFilePath}
+    \    ${loginBStatus}    Run Keyword If    ${EmulatorStatus}==True    Login Into Application    ${GlobalUserName}    ${GlobalPassword}
+    \    Run Keyword If    '${loginBStatus}'=='False'    Fail and Capture ScreenShot    Login into application was failed.Error Details: ${messageDetails}
+    \    Mouse Move    100    100
+    \    Sleep    2s
+    \    Mouse Move    200    200
+    \    ${Inwarddetails}=    Get From Dictionary    ${InwardTestData}    ${rowIndex}
+    \    ${ActionType}    Get From Dictionary    ${Inwarddetails}    Action
+    \    ${BranchCode}    Get From Dictionary    ${Inwarddetails}    Branch
+    \    ${DeptCode}    Get From Dictionary    ${Inwarddetails}    Department
+    \    ${expInwardScreenStatus}    Get From Dictionary    ${Inwarddetails}    ExpectedInwardScreenStatus
+    \    ${expInwardCreationStatus}    Get From Dictionary    ${Inwarddetails}    ExpectedInwardCreationStatus
+    \    ${Recordvalue}    Get From Dictionary    ${Inwarddetails}    RecordNumber
+    \    Capture Screenshot
+    \    Wait For Text    System Master Menu
+    \    Select Menu Item    IO Module
+    \    Capture Screenshot
+    \    Wait For Text    Inward Transaction
+    \    Select Menu Item    Inward Transaction
+    \    ${TransactionScreenStatus}    Select Inward Transaction Type    ${ActionType}    ${BranchCode}    ${DeptCode}
+    \    ${messageDetails}    Get Messages
+    \    ${condition1}    Evaluate    '${TransactionScreenStatus}'=='False' and '${expInwardScreenStatus}'=='False'
+    \    ${condition2}    Evaluate    '${TransactionScreenStatus}'=='False' and '${expInwardScreenStatus}'=='True'
+    \    ${condition3}    Evaluate    '${TransactionScreenStatus}'=='True' and '${expInwardScreenStatus}'=='False'
+    \    Run Keyword If    ${condition1}    Set Test Message    INFO:For ${Recordvalue}, Inward Transaction Type selection was failed. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Wait For Text    IO Module
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Update Result to Log File    ${Recordvalue}    'Fail    Inward Transaction Type selection was failed. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition1}    Continue For Loop
+    \    Run Keyword If    ${condition2}    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    ERROR: For ${Recordvalue}, Inward Transaction Type selection was failed. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Wait For Text    IO Module
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Update Result to Log File    ${Recordvalue}    'Fail    Inward Transaction Type selection was failed. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition2}    Continue For Loop
+    \    Run Keyword If    ${condition3}    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    ERROR: For ${Recordvalue}, Accepted Invalid data and navigated TO inward creation screen.
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Wait For Text    Department
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Wait For Text    IO Module
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Update Result to Log File    ${Recordvalue}    'Fail    Accepted Invalid data and navigated TO inward creation screen.
+    \    Run Keyword If    ${condition3}    Continue For Loop
+    \    ${CreationStatus}    Create New Inward Transaction    ${Inwarddetails}
+    \    ${messageDetails}    Get Messages
+    \    ${condition1}    Evaluate    '${expInwardCreationStatus}'=='False' and '${CreationStatus}'=='False'
+    \    ${condition2}    Evaluate    '${expInwardCreationStatus}'=='True' and '${CreationStatus}'=='False'
+    \    ${condition3}    Evaluate    '${expInwardCreationStatus}'=='False' and '${CreationStatus}'=='True'
+    \    Run Keyword If    '${expInwardCreationStatus}'=='True' and '${CreationStatus}'=='True'    Set Test Message    INFO: For ${Recordvalue}, Inward Transaction got created, Transaction Details: ${messageDetails} \n    append=True
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Wait For Text    Department
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Wait For Text    IO Module
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Update Result to Log File    ${Recordvalue}    'Fail    Inward Transaction got created, Transaction Details: ${messageDetails}
+    \    Run Keyword If    ${condition1}    Continue For Loop
+    \    Run Keyword If    ${condition2}    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    ERROR: For ${Recordvalue}, Inward Transaction creation failed. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Wait For Text    Department
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Wait For Text    IO Module
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Update Result to Log File    ${Recordvalue}    'Fail    Inward Transaction creation failed. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition2}    Continue For Loop
+    \    Run Keyword If    ${condition3}    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    ERROR: For ${Recordvalue}, Inward Transaction Created with Invalid data. Inward Transaction Details: ${messageDetails}
+    \    Run Keyword If    ${condition3}    Wait For Text    Department
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Wait For Text    IO Module
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Update Result to Log File    ${Recordvalue}    'Fail    Inward Transaction Created with Invalid data. Inward Transaction Details: ${messageDetails}
+    \    Run Keyword If    ${condition3}    Continue For Loop
+    \    ${newInwardDetails}    Get Inward and Application Details
+    \    Collections.Set To Dictionary    ${Inwarddetails}    Inw No    @{newInwardDetails}[0]
+    \    Collections.Set To Dictionary    ${Inwarddetails}    Apln No    @{newInwardDetails}[1]
+    \    Wait For Text    Department
+    \    Press Key    [PF3]
+    \    Wait For Text    IO Module
+    \    Press Key    [PF3]
+    \    Wait For Text    Underwriting
+    \    Select Menu Item    Underwriting
+    \    Wait For Text    New Business
+    \    Select Menu Item    New Business
+    \    ${expPolicyMenuStatus}    Get From Dictionary    ${Inwarddetails}    ExpectedPolicyMenuStatus
+    \    ${menuSelectionStatus}    Select From Policy Submenu    ${EMPTY}    FRE    ${EMPTY}    A
+    \    ${messageDetails}    Get Messages
+    \    ${condition1}    Evaluate    '${expPolicyMenuStatus}'=='False' and '${menuSelectionStatus}'=='False'
+    \    ${condition2}    Evaluate    '${expPolicyMenuStatus}'=='True' and '${menuSelectionStatus}'=='False'
+    \    ${condition3}    Evaluate    '${expPolicyMenuStatus}'=='False' and '${menuSelectionStatus}'=='True'
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Wait For Text    New Business
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Update Result to Log File    ${Recordvalue}    'Fail    Inward Transaction creation failed. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition1}    Continue For Loop
+    \    Run Keyword If    ${condition2}    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    ERROR: For ${Recordvalue},selection of Policy SubMenu was failed. Errors: ${messageDetails}
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Wait For Text    New Business
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Update Result to Log File    ${Recordvalue}    'Fail    selection of Policy SubMenu was failed. Errors: ${messageDetails}
+    \    Run Keyword If    ${condition2}    Continue For Loop
+    \    Run Keyword If    ${condition3}    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    ERROR: For ${Recordvalue},Accepted wrong data and Selected the Policy Menu.
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Wait For Text    New Policy Submenu
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Wait For Text    New Business
+    \    Run Keyword If    ${condition3}    Update Result to Log File    ${Recordvalue}    'Fail    Accepted wrong data and Selected the Policy Menu.
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Continue For Loop
+    \    ${npCrtStatus}    Create New Policy    ${Inwarddetails}
+    \    ${expPolicyCreationStatus}    Get From Dictionary    ${Inwarddetails}    ExpectedPolicyCreationStatus
+    \    ${messageDetails}    Get Messages
+    \    ${condition1}    Evaluate    '${npCrtStatus}'=='True' and '${expPolicyCreationStatus}'=='True'
+    \    ${condition2}    Evaluate    '${npCrtStatus}'=='False' and '${expPolicyCreationStatus}'=='False'
+    \    ${condition3}    Evaluate    '${npCrtStatus}'=='True' and '${expPolicyCreationStatus}'=='False'
+    \    ${condition4}    Evaluate    '${npCrtStatus}'=='False' and '${expPolicyCreationStatus}'=='True'
+    \    Run Keyword If    ${condition1}    Set Test Message    INFO: For ${Recordvalue} with Inward Transaction: @{newInwardDetails}[0], Policy got created : ${messageDetails} \n    append=True
+    \    Run Keyword If    ${condition1}    Wait For Text    New Policy Submenu
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Wait For Text    New Business
+    \    Run Keyword If    ${condition1}    Press Key    [PF3]
+    \    Run Keyword If    ${condition1}    Update Result to Log File    ${Recordvalue}    'Pass    Inward Transaction: @{newInwardDetails}[0], Policy got created : ${messageDetails}
+    \    Run Keyword If    ${condition1}    Continue For Loop
+    \    Run Keyword If    ${condition2}    Set Test Message    INFO: For ${Recordvalue} with Inward Transaction: @{newInwardDetails}[0], Policy not created with invalid Details${messageDetails} \n    append=True
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Wait For Text    New Policy Submenu
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Wait For Text    New Business
+    \    Run Keyword If    ${condition2}    Press Key    [PF3]
+    \    Run Keyword If    ${condition2}    Update Result to Log File    ${Recordvalue}    'Fail    Inward Transaction: @{newInwardDetails}[0], Policy not created with invalid Details${messageDetails}
+    \    Run Keyword If    ${condition2}    Continue For Loop
+    \    Run Keyword If    ${condition3}    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    ERROR: For ${Recordvalue},Accepted wrong data and created the policy.Created Policy details : ${messageDetails}
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Wait For Text    New Policy Submenu
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Wait For Text    New Business
+    \    Run Keyword If    ${condition3}    Press Key    [PF3]
+    \    Run Keyword If    ${condition3}    Update Result to Log File    ${Recordvalue}    'Fail    Accepted wrong data and created the policy.Created Policy details : ${messageDetails}
+    \    Run Keyword If    ${condition3}    Continue For Loop
+    \    Run Keyword If    ${condition4}    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    ERROR: For ${Recordvalue}, policy cannot be created with the given details. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition4}    Wait For Text    New Policy Submenu
+    \    Run Keyword If    ${condition4}    Press Key    [PF3]
+    \    Run Keyword If    ${condition4}    Wait For Text    New Business
+    \    Run Keyword If    ${condition4}    Press Key    [PF3]
+    \    Run Keyword If    ${condition4}    Update Result to Log File    ${Recordvalue}    'Fail    policy cannot be created with the given details. Error Details: ${messageDetails}
+    \    Run Keyword If    ${condition4}    Continue For Loop
+
+Select From Policy Submenu
+    [Arguments]    ${Policynumber}    ${PolicyType}    ${EffDate}    ${Action}
+    ${KWStatus}    Set Variable    False
+    ${InwardScreenStatus}    Wait For Text    New Policy Submenu    ${TimeOut}
+    Run Keyword If    ${InwardScreenStatus}==False    Return From Keyword    ${InwardScreenStatus}
+    Enter Text By Field Name    Policy Number    ${Policynumber}
+    Enter Text By Field Name    Policy Type    ${PolicyType}
+    Enter Text By Field Name    Effective Date    ${EffDate}
+    Enter Text By Field Name    Action    ${Action}
+    Capture Screenshot
+    Press Key    [enter]
+    ${kwStatus}    Wait For Text    New Business
+    [Teardown]
+    [Return]    ${KWStatus}
+
+Create New Policy
+    [Arguments]    ${PolicyDetails}
+    ${KWStatus}    Set Variable    False
+    ${policyScreenStatus}    Wait For Text    New Business    ${TimeOut}
+    Run Keyword If    ${policyScreenStatus}==False    Return From Keyword    False
+    ${Branchalue}    Get From Dictionary    ${PolicyDetails}    Branch
+    ${ContractValue}    Get From Dictionary    ${PolicyDetails}    Contract Owner
+    ${InceptionValue}    Get From Dictionary    ${PolicyDetails}    Inception
+    ${ExpiryValue}    Get From Dictionary    ${PolicyDetails}    Expiry
+    ${AgentCodeValue}    Get From Dictionary    ${PolicyDetails}    Agent Code
+    ${AgentCommValue}    Get From Dictionary    ${PolicyDetails}    Agent Comm Type
+    ${InwardNumberValue}    Get From Dictionary    ${PolicyDetails}    Inw No
+    ${ApplicationNumvalue}    Get From Dictionary    ${PolicyDetails}    Apln No
+    Capture Screenshot
+    Sleep    1
+    Enter Text By Field Name    Ser Branch    ${Branchalue}
+    Enter Text By Field Name    Contract Owner    ${ContractValue}
+    Enter Text By Field Name    Inception    ${InceptionValue}
+    Enter Text By Field Name    Expiry    ${ExpiryValue}
+    Press Key    [Enter]
+    Sleep    1
+    Enter Text By Field Name    Agent    ${AgentCodeValue}
+    Sleep    1
+    Select Item From Search Table By Field Name    Agent Comm Type    ${AgentCommValue}
+    Sleep    1
+    Enter Text By Field Name    Inw No    ${InwardNumberValue}
+    Enter Text By Field Name    Apln No    ${ApplicationNumvalue}
+    Press Key    [Enter]
+    Sleep    1
+    ${CvrNTStatus}=    Wait For Text    Cover Note not entered
+    ${messageDetails}    Run Keyword If    ${CvrNTStatus}==False    Get Messages
+    Log List    ${messageDetails}
+    Capture Screenshot
+    Run Keyword If    ${CvrNTStatus}==False    Return From Keyword    False
+    Press Key    [Enter]
+    Sleep    1
+    Wait For Text    Client Address Details
+    Set Cursor Position    Seqno
+    Press Key    [BackTab]
+    Press Key    1
+    Sleep    1
+    Press Key    [Enter]    3
+    ${messageDetails}    Get Messages
+    ${CvrNTStatus}=    Wait For Text    Contract
+    ${CreastedStatus}=    Wait For Text    created
+    ${InwardScreenStatus}    Wait For Text    New Policy Submenu
+    ${newPolicyStatus}    Evaluate    '${CvrNTStatus}'=='True' and '${CreastedStatus}'=='True' and '${InwardScreenStatus}'=='True'
+    ${KWStatus}    Set Variable    ${newPolicyStatus}
+    Capture Screenshot
+    [Return]    ${KWStatus}
+
+Validate Creation Of Inward Trnsaction and Policy Creation2
+    ${InwardTestData}    Read Multiple Testdata    ${testDataFilePath}    InwardTransactionData    TC011
+    ${iSize}    Get Length    ${InwardTestData}
+    : FOR    ${rowIndex}    IN RANGE    1    ${iSize}+1
+    \    ${rowIndex}    Convert To String    ${rowIndex}
+    \    ${Inwarddetails}=    Get From Dictionary    ${InwardTestData}    ${rowIndex}
+    \    ${ActionType}    Get From Dictionary    ${Inwarddetails}    Action
+    \    ${BranchCode}    Get From Dictionary    ${Inwarddetails}    Branch
+    \    ${DeptCode}    Get From Dictionary    ${Inwarddetails}    Department
+    \    ${expInwardScreenStatus}    Get From Dictionary    ${Inwarddetails}    ExpectedInwardScreenStatus
+    \    ${expInwardCreationStatus}    Get From Dictionary    ${Inwarddetails}    ExpectedInwardCreationStatus
+    \    ${Recordvalue}    Get From Dictionary    ${Inwarddetails}    RecordNumber
+    \    ${TransactionScreenStatus}    Select Inward Transaction Type    ${ActionType}    ${BranchCode}    ${DeptCode}
+    \    Take Screenshot
+    \    ${bStatus}    Evaluate    '${expInwardScreenStatus}'=='${TransactionScreenStatus}'
+    \    ${messageDetails}    Get Messages
+    \    Run Keyword If    ${bStatus}==False    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    For ${Recordvalue}, Inward Transaction Type selection was failed. Errors: ${messageDetails}
+    \    Run Keyword If    '${expInwardScreenStatus}'=='False' and '${TransactionScreenStatus}'=='True'    Press Key    [PF3]
+    \    Run Keyword If    '${expInwardScreenStatus}'=='False' and '${TransactionScreenStatus}'=='True'    Continue For Loop
+    \    Run Keyword If    '${expInwardScreenStatus}'=='False' or ${bStatus}==False    Continue For Loop
+    \    ${CreationStatus}    Create New Inward Transaction    ${Inwarddetails}
+    \    ${bStatus}    Evaluate    '${expInwardCreationStatus}'=='${CreationStatus}'
+    \    ${messageDetails}    Get Messages
+    \    Run Keyword If    ${bStatus}==False    Run Keyword And Continue On Failure    Fail and Capture ScreenShot    For ${Recordvalue}, Inward Transaction creation was failed. Errors: ${messageDetails}
+    \    Run Keyword If    ${CreationStatus}==False    Press Key    [PF3]
+    \    Run Keyword If    ${CreationStatus}==False    Continue For Loop

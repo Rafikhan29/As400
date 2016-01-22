@@ -1,0 +1,11 @@
+*** Settings ***
+Library           Collections
+Library           String
+Library           OperatingSystem
+Library           Screenshot
+Library           ../Library/Insurance.py
+Resource          global.txt
+Resource          common.txt
+Library           AutoItLibrary
+Resource          inwardtransactions.txt
+Library           ../Library/CustomLibrary.py

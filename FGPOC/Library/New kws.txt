@@ -1,0 +1,121 @@
+
+        def create_ms_excel_file(self,outputFilePath,sheetName,dctVarb=None):
+            """ It retuen the list of registration codes"""
+            book = Workbook()
+            dctVarb = {"Name":"Mahendra","City":"Hyd"}
+            dctkeys = dctVarb.keys()
+            iColNo = 0
+            opworksheet = book.add_sheet(sheetName)
+            for dctkey in dctkeys:
+                print dctkey
+                opworksheet.write(0,iColNo,dctkey)
+                iColNo = iColNo+1
+            iColNo = 0
+            for dctkey in dctkeys:
+                cellval = dctVarb[dctkey]
+                opworksheet.write(1,iColNo,cellval)
+                iColNo = iColNo+1
+            book.save(outputFilePath)
+
+        def add_column_names_in_ms_exel_file(self,outputFilePath,sheetName,dctVarb=None):
+            """ It retuen the list of registration codes"""
+            book = Workbook()
+            dctVarb = {"Name":"Mahendra","City":"Hyd"}
+            dctkeys = dctVarb.keys()
+            iColNo = 0
+            opworksheet = book.add_sheet(sheetName)
+            for dctkey in dctkeys:
+                print dctkey
+                opworksheet.write(0,iColNo,dctkey)
+                iColNo = iColNo+1
+            iColNo = 0
+            for dctkey in dctkeys:
+                cellval = dctVarb[dctkey]
+                opworksheet.write(1,iColNo,cellval)
+                iColNo = iColNo+1
+            book.save(outputFilePath)
+
+
+        def updated_excel_file(self,opFilePath,opsheetName,dctVarb):
+            """ It retuen the list of registration codes"""
+            try:
+              opsheetName=str(opsheetName)
+              book = Workbook()
+              workbook = xlrd.open_workbook(opFilePath)
+              snames=workbook.sheet_names()
+              print "snames"
+              print snames
+              if opsheetName in snames:
+                print "Sheet Exist"
+              worksheet=workbook.sheet_by_name(opsheetName)
+              print "a"
+              print book.sheet_names()
+              opworksheet=book.get_sheet(1)
+              print "b"
+              noofrows=worksheet.nrows
+              print noofrows
+              colNames=[]
+              expRow =-1
+              print "expRow"
+              print expRow
+              for rowno in range(0,noofrows):
+                  row=worksheet.row(rowno)
+                  for colno in range(0,len(row)):
+                      cellval=worksheet.cell_value(rowno,colno)
+                      if rowno==0:
+                        print cellval
+                        colNames.append(str(cellval))
+                      if cellval!=dctVarb['Record']:
+                        continue
+                      expRow = rowno
+                      opworksheet.write(expRow,colNames.index('Status'),dctVarb['Stats'])
+                      opworksheet.write(expRow,colNames.index('Comments'),dctVarb['Comments'])               
+              book.save(outputFilePath)
+              print colNames
+            except Exception as exp:
+              print exp
+
+
+        def updated_ms_excel_file(self,strFilePath,strsheetName,dctVarb):
+            """ It retuen the list of registration codes"""
+            try:
+                exlObj = Dispatch("Excel.Application")
+                exlObj.Visible=False
+                workbook = exlObj.Workbooks.Open(strFilePath)
+                worksheet = workbook.Worksheets(strsheetName)
+                colNames=[]
+                used = worksheet.UsedRange
+                
+                intRowsCount =used.Row+used.Rows.Count-1
+                print "intRowsCount: "+str(intRowsCount)
+                intColCount =used.Column + used.Columns.Count - 1
+                print "intColCount: "+str(intColCount)
+                for iRowIndex in range(1,intRowsCount+1):
+                  for iColIndex in range(1,intColCount+1):
+                    cellValue = worksheet.Cells(iRowIndex,iColIndex).Value
+                    cellValue = str(cellValue)
+                    print "cellValue: "+ str(cellValue)
+                    if iRowIndex==1:
+                      colNames.append(cellValue)
+                      continue
+                    if cellValue!=dctVarb['Record']:
+                      continue
+                    for dkeys in dctVarb.keys():
+                      
+                    worksheet.Cells(iRowIndex,int(colNames.index("Status"))+1).Value = dctVarb['Status']
+                    worksheet.Cells(iRowIndex,int(colNames.index("Comments"))+1).Value = dctVarb['Comments']
+                workbook.Save()
+                workbook.close
+                exlObj.Application.Quit()
+            except Exception as exp:
+              print exp
+              try:
+                workbook.Save()
+                workbook.close
+                exlObj.Application.Quit()
+              except:
+                print "exp"
+
+                
+                
+

@@ -1,0 +1,118 @@
+*** Settings ***
+Resource          super.txt
+
+*** Keywords ***
+Login Into Application
+    [Arguments]    ${userName}    ${passWord}
+    ${kwStatus}    Set Variable    False
+    Wait For Text    Sign On    60
+    Enter Text By Field Name    User    ${userName}
+    Enter Text By Field Name    Password    ${passWord}
+    Capture Screenshot
+    Press Key    [enter]
+    ${bStatus}    Wait For Text    Sign-on Information
+    Run Keyword If    ${bStatus}    Press Key    [enter]
+    ${bStatus}    Wait For Text    Display Messages
+    Run Keyword If    ${bStatus}    Press Key    [enter]
+    ${bStatus}    Run Keyword If    ${bStatus}==False    Wait For Text    Display Program Messages
+    Run Keyword If    '${bStatus}'=='True'    Press Key    [enter]
+    ${kwStatus}    Wait For Text    System Master Menu
+    Run Keyword If    ${kwStatus}    Set Test Message    INFO: Logged in Successfully with UserId: ${userName} \n    append=True
+    [Return]    ${kwStatus}
+
+Logout From Application
+    Take Screenshot
+    ${kwStatus}    Set Variable    False
+    ${bStatus2}    Set Variable    False
+    : FOR    ${iIndex}    IN RANGE    0    10
+    \    ${bStatus1}    Wait For Text    System Master Menu    1
+    \    ${bStatus2}    Run Keyword If    ${bStatus1}==False    Wait For Text    Sign-on Information    1
+    \    ${bStatus2}    Set Variable If    ${bStatus1}==True    False    ${bStatus2}
+    \    ${bStatus}    Evaluate    ${bStatus1}==True or ${bStatus2}==True
+    \    Run Keyword If    ${bStatus}==True    Exit For Loop
+    \    Press Key    [PF3]
+    Run Keyword If    ${bStatus}==False    Return From Keyword    ${kwStatus}
+    Press Key    [PF3]
+    Run Keyword If    ${bStatus2}==True    Press Key    [enter]
+    ${kwStatus}    Wait For Text    Sign On    10
+    Run Keyword If    ${kwStatus}    Set Test Message    \n INFO: Logged out Successfully    append=True
+    [Return]    ${kwStatus}
+
+Open AS400 Console
+    [Arguments]    ${connFilePath}
+    ${kwStatus}    Set Variable    False
+    ${intanceCount}    Get Connection Count
+    Run Keyword If    ${intanceCount}>0    Set Test Message    INFO: AS400 Console opened successfully \n    append=True
+    Run Keyword If    ${intanceCount}>0    Return From Keyword    True
+    ${connectionStatus}    Open Console    ${connFilePath}
+    Run Keyword If    ${connectionStatus}==False    Fail and Capture ScreenShot    AS400 connection didn't open
+    ${popupStatus}    Run Keyword And Return Status    AutoItLibrary.Wait For Active Window    Signon to iSeries    \    20
+    Comment    Verify the Signon to iSeries popup
+    Run Keyword If    ${popupStatus}==False    Return From Keyword    True
+    Run Keyword If    ${popupStatus}    AutoItLibrary.Send    ${GlobalUserName}
+    Run Keyword If    ${popupStatus}    AutoItLibrary.Send    {TAB}
+    Run Keyword If    ${popupStatus}    Sleep    1s
+    Run Keyword If    ${popupStatus}    AutoItLibrary.Send    ${GlobalPassword}
+    Run Keyword If    ${popupStatus}    AutoItLibrary.Send    {TAB}
+    Run Keyword If    ${popupStatus}    AutoItLibrary.Send    {ENTER}
+    ${kwStatus}    Wait For Text    Sign On    25
+    Run Keyword If    ${kwStatus}==False    Send    !{F4}
+    Run Keyword If    ${kwStatus}==False    Fail and Capture ScreenShot    \n AS400 console was not open or user unable to login at "Signon to iSeries" window
+    Set Test Message    INFO: AS400 Console opened successfully \n    append=True
+    [Return]    ${kwStatus}
+
+Close AS400 Console
+    Take Screenshot
+    ${kwStatus}    Shutdown Console
+    Run Keyword If    ${kwStatus}==False    Fail and Capture ScreenShot    \n AS400 console can't shutdown
+    OperatingSystem.Run    taskkill /f /im pcsws.exe
+    Set Test Message    \n INFO: AS400 Console closed successfully    append=True
+    [Return]    ${kwStatus}
+
+Get Messages
+    Sleep    1s
+    ${lastRowData}    Get Value By Row And Column    24    1    80
+    Capture Screenshot
+    ${lastRowData}    Set Variable    ${lastRowData.strip()}
+    ${tempList}    Split String    ${lastRowData}    ¦
+    Remove Values From List    ${tempList}    ${EMPTY}
+    Log List    ${tempList}
+    [Return]    ${tempList}
+
+Enter Text For Multiple Fileds
+    [Arguments]    ${FieldName}    ${Value}    ${instance}
+    ${tempList}=    Split String    ${Value}    |
+    Enter Text By Field Name    ${FieldName}    @{tempList}[0]    ${instance}
+    ${iSize}    Get Length    ${tempList}
+    : FOR    ${Index}    IN RANGE    1    ${iSize}
+    \    Press Key    [TAB]
+    \    Enter Text    @{tempList}[${Index}]
+    \    Sleep    2
+
+Get Inward and Application Details
+    ${messages}    Get Messages
+    ${messages}    Set Variable    @{messages}[0]
+    ${messages}    Set Variable    ${messages.strip()}
+    ${messages}    Replace String    ${messages}    IO Number :-    ${EMPTY}
+    ${messages}    Replace String    ${messages}    Application No :-    ${EMPTY}
+    ${messages}    Set Variable    ${messages.strip()}
+    ${tempList}    Split String    ${messages}    ${SPACE}
+    Remove Values From List    ${tempList}    ${EMPTY}
+    ${NewInwardNo}    Set Variable    @{tempList}[0]
+    ${NewApplicationNo}    Set Variable    @{tempList}[1]
+    ${NewInwardNo}    Set Variable    ${NewInwardNo.strip()}
+    ${NewApplicationNo}    Set Variable    ${NewApplicationNo.strip()}
+    ${Details}    Create List    ${NewInwardNo}    ${NewApplicationNo}
+    [Return]    ${Details}
+
+Fail and Capture ScreenShot
+    [Arguments]    ${ErrorMessage}=${EMPTY}
+    Capture Screenshot
+    Fail    ${ErrorMessage}
+
+Update Result to Log File
+    [Arguments]    ${RecorNumber}    ${Status}    ${Message}
+    ${ScreenShotFileName}    Get Latest File In Folder    ${OUTPUT_DIR}    screenshot
+    ${Resultdict}    Create Dictionary    RecordNumber    ${RecorNumber}    Status    ${Status}    Message
+    ...    ${Message}    ScreenShot    File:\\\\${ScreenShotFileName}
+    Updated Ms Excel File    ${LogExcelResultFile}    InwardTransactionData    ${Resultdict}

@@ -1,0 +1,23 @@
+*** Settings ***
+Resource          ../Keywords/super.txt
+
+*** Test Cases ***
+TC01: Validate Fun
+    [Setup]    Open AS400 Console    ${GlobalConnFilePath}
+    [Timeout]    50 minutes
+    ${loginStatus}    Login Into Application    ${GlobalUserName}    ${GlobalPassword}
+    ${messageDetails}    Get Messages
+    Run Keyword If    ${loginStatus}==False    Fail and Capture ScreenShot    Login into application was failed.Error Details: ${messageDetails}
+    ${timeStamp}    Get Time    epoch
+    Set Global Variable    ${LogExcelResultFile}    ${LogFolder}logFile_${timeStamp}.xls
+    CustomLibrary.Create Ms Excel File Using Existing File    ${testDataFilePath}    ${LogExcelResultFile}
+    Validate Creation Of Inward Trnsaction and Policy Creation
+    ${logoutStatus}    Logout From Application
+    Run Keyword If    ${logoutStatus}==False    Fail and Capture ScreenShot    Logout from application was failed.
+    [Teardown]    Close AS400 Console
+
+Test on Mul Screens
+    ${GlobalConnFilePath}    Set Variable    D:\\FG\FGDemo\\FutureGeneraliPOC\\Workstation\\AS400.WS
+    Open Console    ${GlobalConnFilePath}
+    Open Console    ${GlobalConnFilePath}
+    Open Console    ${GlobalConnFilePath}

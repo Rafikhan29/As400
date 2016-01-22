@@ -1,0 +1,13 @@
+*** Settings ***
+Resource          super.txt
+
+*** Variables ***
+${GlobalUserName}    TENX01    # UserName For Terminal Login
+${GlobalPassword}    zxcvbm8i    # Password For Terminal Login
+${GlobalConnFilePath}    ${EXECDIR}\\Connections\\PA_UAT.WS    # This is connection file path
+${GlobalErrMessage}    No Error
+${testDataFilePath}    ${EXECDIR}\\TestData\\TestData.xls
+${TimeOut}        10
+${NewContractNumber}    ${EMPTY}
+${globalScreenShot}    True
+${LogFolder}      ${EXECDIR}\\Results\\
